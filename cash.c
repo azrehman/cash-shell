@@ -1,33 +1,13 @@
-#include <stdint.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <string.h>
 
-char* read_line(void);
-int main() {
+#include "cash.h"
 
-	if (!isatty(STDIN_FILENO)) {
-		fprintf(stderr, "error: invalid input source for shell.\n");
-		return 1;
-	}
-
-	char* prompt = "$> ";
-	char* line;
-	char** argv = malloc(10 * sizeof(char*));
-
-	bool isRunning = true;
-	while (isRunning) {
-		printf("%s", prompt);
-		line = read_line();
-		// argv = tokenize_line(line);
-		// isRunning = execute(argv);
-	}
-
-	return 0;
-}
-
+/*
+ * read line from standard input using getline
+ * returns heap-allocated string
+ */
 char* read_line(void) {
 	char* line = NULL;
 	size_t line_buffer_size = 0;
@@ -41,4 +21,39 @@ char* read_line(void) {
 	}
 }
 
+/**
+ * tokenize line into string array by whitespace
+ * returns heap-allocated string array
+ */
+char** tokenize_line(char* line) {
+	int line_size = 64;
+	char** tokens = malloc(line_size * sizeof(char*));
+	if (!tokens) {
+		fprintf(stderr, "error: could not allocate line tokens.");
+		exit(1);
+	}
+	char* token;
 
+	// add tokens from line into tokens array
+	int i = 0;
+	token = strtok(line, TOKEN_DELIM);
+	while (!token) {
+		tokens[i++] = token;
+
+		// reallocate tokens array if line too big
+		if (i >= line_size) {
+			line_size *= 2;
+			char** temp = realloc(tokens, line_size * sizeof(char*));
+			if (!temp) {
+				fprintf(stderr, "error: could not reallocate line tokens.");
+				exit(1);
+			}
+			tokens = temp;
+		}
+
+		token = strtok(NULL, TOKEN_DELIM);
+	}
+	// null terminate array of tokens for execvp
+	tokens[i] = NULL;
+	return tokens;
+}

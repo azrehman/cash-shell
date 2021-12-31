@@ -38,5 +38,6 @@ $(TARGET): $(OBJS) $(GIVEN_OBJS)
 clean:
 	rm -f $(OBJS)
 	rm -f $(TARGET)
+	rm -f vlog.txt
 
 
