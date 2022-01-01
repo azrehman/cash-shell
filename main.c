@@ -22,7 +22,7 @@ int main(void) {
 		printf("%s", prompt);
 		line = read_line();
 		argv = tokenize_line(line);
-		// isRunning = execute(argv);
+		isRunning = execute(argv);
 		free(line);
 		free(argv);
 	}
